@@ -26,11 +26,8 @@ SemaphoreHandle_t xSemaphoreLedR;
 SemaphoreHandle_t xSemaphoreLedY;
 
 void btn_callback(uint gpio, uint32_t events) {
-    uint8_t btn = 0;
-
     if (events == GPIO_IRQ_EDGE_FALL) {
-        btn = (uint8_t)gpio;
-        xQueueSendFromISR(xQueueBtn, &btn, NULL);
+        xQueueSendFromISR(xQueueBtn, &gpio, NULL);
     }
 }
 
@@ -47,11 +44,12 @@ void btn_task(void *p) {
     gpio_set_irq_enabled(BTN_PIN_Y, GPIO_IRQ_EDGE_FALL, true);
 
     while (true) {
-        uint8_t btn_0;
-        if (xQueueReceive(xQueueBtn, &btn_0, portMAX_DELAY) == pdTRUE) {
-            if (btn_0 == BTN_PIN_R) {
+        uint32_t btn_rx;
+
+        if (xQueueReceive(xQueueBtn, &btn_rx, portMAX_DELAY) == pdTRUE) {
+            if (btn_rx == BTN_PIN_R) {
                 xSemaphoreGive(xSemaphoreLedR);
-            } else if (btn_0 == BTN_PIN_Y) {
+            } else if (btn_rx == BTN_PIN_Y) {
                 xSemaphoreGive(xSemaphoreLedY);
             }
         }
@@ -114,9 +112,9 @@ void led_y_task(void *p) {
 
 int main() {
     stdio_init_all();
-    printf("Start RTOS\n"); 
+    /* printf("Start RTOS\n"); */
 
-    xQueueBtn = xQueueCreate(8, sizeof(uint8_t));
+    xQueueBtn = xQueueCreate(32, sizeof(uint32_t));
     xSemaphoreLedR = xSemaphoreCreateBinary();
     xSemaphoreLedY = xSemaphoreCreateBinary();
 
