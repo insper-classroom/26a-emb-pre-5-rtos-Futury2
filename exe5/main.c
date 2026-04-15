@@ -46,13 +46,12 @@ void btn_task(void *p) {
     gpio_set_irq_enabled_with_callback(BTN_PIN_R, GPIO_IRQ_EDGE_FALL, true, &btn_callback);
     gpio_set_irq_enabled(BTN_PIN_Y, GPIO_IRQ_EDGE_FALL, true);
 
-    uint8_t btn = 0;
-
     while (true) {
-        if (xQueueReceive(xQueueBtn, &btn, portMAX_DELAY) == pdTRUE) {
-            if (btn == BTN_PIN_R) {
+        uint8_t btn_0;
+        if (xQueueReceive(xQueueBtn, &btn_0, portMAX_DELAY) == pdTRUE) {
+            if (btn_0 == BTN_PIN_R) {
                 xSemaphoreGive(xSemaphoreLedR);
-            } else if (btn == BTN_PIN_Y) {
+            } else if (btn_0 == BTN_PIN_Y) {
                 xSemaphoreGive(xSemaphoreLedY);
             }
         }
