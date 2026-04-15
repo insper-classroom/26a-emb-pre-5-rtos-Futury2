@@ -12,7 +12,9 @@ const int BTN_PIN_G = 26;
 const int LED_PIN_R = 4;
 const int LED_PIN_G = 6;
 
-QueueHandle_t xQueueButId;
+QueueHandle_t xQueueButR;
+QueueHandle_t xQueueButG;
+
 
 void led_1_task(void *p) {
     gpio_init(LED_PIN_R);
@@ -20,7 +22,7 @@ void led_1_task(void *p) {
 
     int delay = 0;
     while (true) {
-        if (xQueueReceive(xQueueButId, &delay, 0)) {
+        if (xQueueReceive(xQueueButR, &delay, 0)) {
             printf("%d\n", delay);
         }
 
@@ -52,7 +54,7 @@ void btn_1_task(void *p) {
                 delay = 100;
             }
             printf("delay btn %d \n", delay);
-            xQueueSend(xQueueButId, &delay, 0);
+            xQueueSend(xQueueButR, &delay, 0);
         }
     }
 }
@@ -63,7 +65,7 @@ void led_2_task(void *p) {
 
     int delay = 0;
     while (true) {
-        if (xQueueReceive(xQueueButId, &delay, 0)) {
+        if (xQueueReceive(xQueueButG, &delay, 0)) {
             printf("%d\n", delay);
         }
 
@@ -95,7 +97,7 @@ void btn_2_task(void *p) {
                 delay = 100;
             }
             printf("delay btn %d \n", delay);
-            xQueueSend(xQueueButId, &delay, 0);
+            xQueueSend(xQueueButG, &delay, 0);
         }
     }
 }
@@ -105,7 +107,8 @@ int main() {
     stdio_init_all();
     printf("Start RTOS \n");
 
-    xQueueButId = xQueueCreate(32, sizeof(int));
+    xQueueButR = xQueueCreate(32, sizeof(int));
+    xQueueButG = xQueueCreate(32, sizeof(int));
 
     xTaskCreate(led_1_task, "LED_Task 1", 256, NULL, 1, NULL);
     xTaskCreate(btn_1_task, "BTN_Task 1", 256, NULL, 1, NULL);
